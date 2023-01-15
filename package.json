@@ -1,7 +1,7 @@
 {
   "name": "@jrc03c/better-exec",
   "version": "0.0.1",
-  "description": "just a version of `child_process.exec` (and `child_process.execSync`) that prints output in realtime",
+  "description": "a version of `child_process.exec` that prints output in realtime",
   "main": "index.js",
   "keywords": [
     "node",
