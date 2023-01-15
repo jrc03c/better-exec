@@ -1,6 +1,6 @@
 const { spawn } = require("child_process")
 
-function betterExec(command, callback) {
+function betterExec(command, shouldBeSilent, callback) {
   function compileResults() {
     if (stdoutTemp.length > 0) {
       const finalLines = stdoutTemp.split("\n")
@@ -9,7 +9,10 @@ function betterExec(command, callback) {
         .slice(0, finalLines.at(-1).trim().length === 0 ? -1 : null)
         .forEach(line => {
           stdoutLines.push(line)
-          console.log(line)
+
+          if (!shouldBeSilent) {
+            console.log(line)
+          }
         })
     }
 
@@ -20,13 +23,21 @@ function betterExec(command, callback) {
         .slice(0, finalLines.at(-1).trim().length === 0 ? -1 : null)
         .forEach(line => {
           stderrLines.push(line)
-          console.log(line)
+
+          if (!shouldBeSilent) {
+            console.log(line)
+          }
         })
     }
 
     const stdout = stdoutLines.join("\n")
     const stderr = stderrLines.join("\n")
     return { stdout, stderr }
+  }
+
+  if (typeof shouldBeSilent === "function") {
+    callback = shouldBeSilent
+    shouldBeSilent = false
   }
 
   const stdoutLines = []
@@ -50,8 +61,11 @@ function betterExec(command, callback) {
           const newline = parts[0]
           const remainder = parts.slice(1).join("\n")
           stdoutLines.push(newline)
-          console.log(newline)
           stdoutTemp = remainder
+
+          if (!shouldBeSilent) {
+            console.log(newline)
+          }
         }
       })
 
@@ -64,8 +78,11 @@ function betterExec(command, callback) {
           const newline = parts[0]
           const remainder = parts.slice(1).join("\n")
           stderrLines.push(newline)
-          console.log(newline)
           stderrTemp = remainder
+
+          if (!shouldBeSilent) {
+            console.log(newline)
+          }
         }
       })
 

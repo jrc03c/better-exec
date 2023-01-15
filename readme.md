@@ -31,3 +31,17 @@ exec("wget https://example.com/path/to/some-file").then(results => {
 ```
 
 In the above examples, you can do something with `stdout` and `stderr` (from the `results` object) if you want, but do note that they'll already have been printed to the command line by the time you see them in the callback function.
+
+## Silence
+
+By default, `better-exec` prints all output to the command line. If you'd prefer to disable this behavior, though, then simply pass `true` as the second parameter, like this:
+
+```js
+const exec = require("@jrc03c/better-exec")
+const silent = true
+
+exec("wget https://example.com/path/to/some-file", silent, results => {
+  const { stdout, stderr, error } = results
+  // ...
+})
+```
