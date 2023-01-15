@@ -1,0 +1,15 @@
+{
+  "name": "@jrc03c/better-exec",
+  "version": "0.0.1",
+  "description": "just a version of `child_process.exec` (and `child_process.execSync`) that prints output in realtime",
+  "main": "index.js",
+  "keywords": [
+    "node",
+    "exec",
+    "child_process",
+    "process",
+    "spawn"
+  ],
+  "author": "jrc03c",
+  "license": "ISC"
+}
