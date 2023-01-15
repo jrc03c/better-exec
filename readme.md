@@ -14,14 +14,20 @@ npm install --save https://github.com/jrc03c/better-exec
 const exec = require("@jrc03c/better-exec")
 
 // callback style
-exec("wget https://example.com/path/to/some-file", (stdout, stderr) => {
+exec("wget https://example.com/path/to/some-file", results => {
+  const { stdout, stderr, error } = results
+  if (error) throw error
+  // do something with stdout & stderr
   console.log("Done!")
 })
 
 // Promise style
-exec("wget https://example.com/path/to/some-file").then((stdout, stderr) => {
+exec("wget https://example.com/path/to/some-file").then(results => {
+  const { stdout, stderr, error } = results
+  if (error) throw error
+  // do something with stdout & stderr
   console.log("Done!")
 })
 ```
 
-In the above examples, you can do something with `stdout` and `stderr` if you want, but do note that they'll already have been printed to the command line by the time you see them in the callback function.
+In the above examples, you can do something with `stdout` and `stderr` (from the `results` object) if you want, but do note that they'll already have been printed to the command line by the time you see them in the callback function.

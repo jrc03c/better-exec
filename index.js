@@ -1,13 +1,42 @@
 const { spawn } = require("child_process")
 
 function betterExec(command, callback) {
+  function compileResults() {
+    if (stdoutTemp.length > 0) {
+      const finalLines = stdoutTemp.split("\n")
+
+      finalLines
+        .slice(0, finalLines.at(-1).trim().length === 0 ? -1 : null)
+        .forEach(line => {
+          stdoutLines.push(line)
+          console.log(line)
+        })
+    }
+
+    if (stderrTemp.length > 0) {
+      const finalLines = stderrTemp.split("\n")
+
+      finalLines
+        .slice(0, finalLines.at(-1).trim().length === 0 ? -1 : null)
+        .forEach(line => {
+          stderrLines.push(line)
+          console.log(line)
+        })
+    }
+
+    const stdout = stdoutLines.join("\n")
+    const stderr = stderrLines.join("\n")
+    return { stdout, stderr }
+  }
+
+  const stdoutLines = []
+  const stderrLines = []
+  let stdoutTemp = ""
+  let stderrTemp = ""
+
   return new Promise((resolve, reject) => {
     try {
       const child = spawn(command.split(" ")[0], command.split(" ").slice(1))
-      const stdoutLines = []
-      const stderrLines = []
-      let stdoutTemp = ""
-      let stderrTemp = ""
 
       child.stdout.setEncoding("utf8")
       child.stderr.setEncoding("utf8")
@@ -41,40 +70,19 @@ function betterExec(command, callback) {
       })
 
       child.on("close", code => {
-        if (stdoutTemp.length > 0) {
-          const finalLines = stdoutTemp.split("\n")
-
-          finalLines
-            .slice(0, finalLines.at(-1).trim().length === 0 ? -1 : null)
-            .forEach(line => {
-              stdoutLines.push(line)
-              console.log(line)
-            })
-        }
-
-        if (stderrTemp.length > 0) {
-          const finalLines = stderrTemp.split("\n")
-
-          finalLines
-            .slice(0, finalLines.at(-1).trim().length === 0 ? -1 : null)
-            .forEach(line => {
-              stderrLines.push(line)
-              console.log(line)
-            })
-        }
-
-        const stdout = stdoutLines.join("\n")
-        const stderr = stderrLines.join("\n")
+        const results = compileResults()
 
         if (code > 0) {
-          return reject(stdout, stderr)
+          return reject(results)
         } else {
-          if (callback) callback(stdout, stderr)
-          return resolve(stdout, stderr)
+          if (callback) callback(results)
+          return resolve(results)
         }
       })
     } catch (e) {
-      return reject(e)
+      const results = compileResults()
+      results.error = e
+      return reject(results)
     }
   })
 }
