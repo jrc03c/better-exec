@@ -17,7 +17,7 @@ function betterExec(commands, shouldBeSilent, callback) {
   let cwd = process.cwd()
   const origCwd = cwd
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     try {
       async function next() {
         index++
@@ -41,16 +41,7 @@ function betterExec(commands, shouldBeSilent, callback) {
         }
 
         if (command.match(/^\bcd\b/g)) {
-          cwd = command.split(" ")[1]
-
-          if (!fs.existsSync(cwd)) {
-            try {
-              cwd = execSync(cwd, { encoding: "utf8" })
-            } catch (e) {
-              throw new Error(`"${cwd}" doesn't seem to be a valid directory!`)
-            }
-          }
-
+          cwd = command.split(" ").slice(1).join(" ")
           return next()
         }
 
@@ -85,7 +76,14 @@ function betterExec(commands, shouldBeSilent, callback) {
 
         child.on("close", code => {
           if (code > 0) {
-            return reject(results)
+            const results = { stdout, stderr }
+
+            results.error = new Error(
+              `The command "${command}" exited with code ${code}!`
+            )
+
+            if (callback) callback(results)
+            return resolve(results)
           } else {
             return next()
           }
@@ -97,7 +95,8 @@ function betterExec(commands, shouldBeSilent, callback) {
     } catch (e) {
       const results = { stdout, stderr }
       results.error = e
-      return reject(results)
+      if (callback) callback(results)
+      return resolve(results)
     }
   })
 }
